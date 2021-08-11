@@ -7947,6 +7947,412 @@ Object3D.prototype.isObject3D = true;
 
 /***/ }),
 
+/***/ "./node_modules/three/src/extras/ImageUtils.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/three/src/extras/ImageUtils.js ***!
+  \*****************************************************/
+/*! exports provided: ImageUtils */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ImageUtils", function() { return ImageUtils; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var _canvas;
+
+var ImageUtils = /*#__PURE__*/function () {
+  function ImageUtils() {
+    _classCallCheck(this, ImageUtils);
+  }
+
+  _createClass(ImageUtils, null, [{
+    key: "getDataURL",
+    value: function getDataURL(image) {
+      if (/^data:/i.test(image.src)) {
+        return image.src;
+      }
+
+      if (typeof HTMLCanvasElement == 'undefined') {
+        return image.src;
+      }
+
+      var canvas;
+
+      if (image instanceof HTMLCanvasElement) {
+        canvas = image;
+      } else {
+        if (_canvas === undefined) _canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
+        _canvas.width = image.width;
+        _canvas.height = image.height;
+
+        var context = _canvas.getContext('2d');
+
+        if (image instanceof ImageData) {
+          context.putImageData(image, 0, 0);
+        } else {
+          context.drawImage(image, 0, 0, image.width, image.height);
+        }
+
+        canvas = _canvas;
+      }
+
+      if (canvas.width > 2048 || canvas.height > 2048) {
+        console.warn('THREE.ImageUtils.getDataURL: Image converted to jpg for performance reasons', image);
+        return canvas.toDataURL('image/jpeg', 0.6);
+      } else {
+        return canvas.toDataURL('image/png');
+      }
+    }
+  }]);
+
+  return ImageUtils;
+}();
+
+
+
+/***/ }),
+
+/***/ "./node_modules/three/src/loaders/Cache.js":
+/*!*************************************************!*\
+  !*** ./node_modules/three/src/loaders/Cache.js ***!
+  \*************************************************/
+/*! exports provided: Cache */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Cache", function() { return Cache; });
+var Cache = {
+  enabled: false,
+  files: {},
+  add: function add(key, file) {
+    if (this.enabled === false) return; // console.log( 'THREE.Cache', 'Adding key:', key );
+
+    this.files[key] = file;
+  },
+  get: function get(key) {
+    if (this.enabled === false) return; // console.log( 'THREE.Cache', 'Checking key:', key );
+
+    return this.files[key];
+  },
+  remove: function remove(key) {
+    delete this.files[key];
+  },
+  clear: function clear() {
+    this.files = {};
+  }
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/three/src/loaders/ImageLoader.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/three/src/loaders/ImageLoader.js ***!
+  \*******************************************************/
+/*! exports provided: ImageLoader */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ImageLoader", function() { return ImageLoader; });
+/* harmony import */ var _Cache_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Cache.js */ "./node_modules/three/src/loaders/Cache.js");
+/* harmony import */ var _Loader_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Loader.js */ "./node_modules/three/src/loaders/Loader.js");
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+
+
+
+var ImageLoader = /*#__PURE__*/function (_Loader) {
+  _inherits(ImageLoader, _Loader);
+
+  var _super = _createSuper(ImageLoader);
+
+  function ImageLoader(manager) {
+    _classCallCheck(this, ImageLoader);
+
+    return _super.call(this, manager);
+  }
+
+  _createClass(ImageLoader, [{
+    key: "load",
+    value: function load(url, onLoad, onProgress, onError) {
+      if (this.path !== undefined) url = this.path + url;
+      url = this.manager.resolveURL(url);
+      var scope = this;
+      var cached = _Cache_js__WEBPACK_IMPORTED_MODULE_0__["Cache"].get(url);
+
+      if (cached !== undefined) {
+        scope.manager.itemStart(url);
+        setTimeout(function () {
+          if (onLoad) onLoad(cached);
+          scope.manager.itemEnd(url);
+        }, 0);
+        return cached;
+      }
+
+      var image = document.createElementNS('http://www.w3.org/1999/xhtml', 'img');
+
+      function onImageLoad() {
+        image.removeEventListener('load', onImageLoad, false);
+        image.removeEventListener('error', onImageError, false);
+        _Cache_js__WEBPACK_IMPORTED_MODULE_0__["Cache"].add(url, this);
+        if (onLoad) onLoad(this);
+        scope.manager.itemEnd(url);
+      }
+
+      function onImageError(event) {
+        image.removeEventListener('load', onImageLoad, false);
+        image.removeEventListener('error', onImageError, false);
+        if (onError) onError(event);
+        scope.manager.itemError(url);
+        scope.manager.itemEnd(url);
+      }
+
+      image.addEventListener('load', onImageLoad, false);
+      image.addEventListener('error', onImageError, false);
+
+      if (url.substr(0, 5) !== 'data:') {
+        if (this.crossOrigin !== undefined) image.crossOrigin = this.crossOrigin;
+      }
+
+      scope.manager.itemStart(url);
+      image.src = url;
+      return image;
+    }
+  }]);
+
+  return ImageLoader;
+}(_Loader_js__WEBPACK_IMPORTED_MODULE_1__["Loader"]);
+
+
+
+/***/ }),
+
+/***/ "./node_modules/three/src/loaders/Loader.js":
+/*!**************************************************!*\
+  !*** ./node_modules/three/src/loaders/Loader.js ***!
+  \**************************************************/
+/*! exports provided: Loader */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Loader", function() { return Loader; });
+/* harmony import */ var _LoadingManager_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LoadingManager.js */ "./node_modules/three/src/loaders/LoadingManager.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+
+var Loader = /*#__PURE__*/function () {
+  function Loader(manager) {
+    _classCallCheck(this, Loader);
+
+    this.manager = manager !== undefined ? manager : _LoadingManager_js__WEBPACK_IMPORTED_MODULE_0__["DefaultLoadingManager"];
+    this.crossOrigin = 'anonymous';
+    this.withCredentials = false;
+    this.path = '';
+    this.resourcePath = '';
+    this.requestHeader = {};
+  }
+
+  _createClass(Loader, [{
+    key: "load",
+    value: function load()
+    /* url, onLoad, onProgress, onError */
+    {}
+  }, {
+    key: "loadAsync",
+    value: function loadAsync(url, onProgress) {
+      var scope = this;
+      return new Promise(function (resolve, reject) {
+        scope.load(url, resolve, onProgress, reject);
+      });
+    }
+  }, {
+    key: "parse",
+    value: function parse()
+    /* data */
+    {}
+  }, {
+    key: "setCrossOrigin",
+    value: function setCrossOrigin(crossOrigin) {
+      this.crossOrigin = crossOrigin;
+      return this;
+    }
+  }, {
+    key: "setWithCredentials",
+    value: function setWithCredentials(value) {
+      this.withCredentials = value;
+      return this;
+    }
+  }, {
+    key: "setPath",
+    value: function setPath(path) {
+      this.path = path;
+      return this;
+    }
+  }, {
+    key: "setResourcePath",
+    value: function setResourcePath(resourcePath) {
+      this.resourcePath = resourcePath;
+      return this;
+    }
+  }, {
+    key: "setRequestHeader",
+    value: function setRequestHeader(requestHeader) {
+      this.requestHeader = requestHeader;
+      return this;
+    }
+  }]);
+
+  return Loader;
+}();
+
+
+
+/***/ }),
+
+/***/ "./node_modules/three/src/loaders/LoadingManager.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/three/src/loaders/LoadingManager.js ***!
+  \**********************************************************/
+/*! exports provided: DefaultLoadingManager, LoadingManager */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultLoadingManager", function() { return DefaultLoadingManager; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LoadingManager", function() { return LoadingManager; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var LoadingManager = function LoadingManager(onLoad, onProgress, onError) {
+  _classCallCheck(this, LoadingManager);
+
+  var scope = this;
+  var isLoading = false;
+  var itemsLoaded = 0;
+  var itemsTotal = 0;
+  var urlModifier = undefined;
+  var handlers = []; // Refer to #5689 for the reason why we don't set .onStart
+  // in the constructor
+
+  this.onStart = undefined;
+  this.onLoad = onLoad;
+  this.onProgress = onProgress;
+  this.onError = onError;
+
+  this.itemStart = function (url) {
+    itemsTotal++;
+
+    if (isLoading === false) {
+      if (scope.onStart !== undefined) {
+        scope.onStart(url, itemsLoaded, itemsTotal);
+      }
+    }
+
+    isLoading = true;
+  };
+
+  this.itemEnd = function (url) {
+    itemsLoaded++;
+
+    if (scope.onProgress !== undefined) {
+      scope.onProgress(url, itemsLoaded, itemsTotal);
+    }
+
+    if (itemsLoaded === itemsTotal) {
+      isLoading = false;
+
+      if (scope.onLoad !== undefined) {
+        scope.onLoad();
+      }
+    }
+  };
+
+  this.itemError = function (url) {
+    if (scope.onError !== undefined) {
+      scope.onError(url);
+    }
+  };
+
+  this.resolveURL = function (url) {
+    if (urlModifier) {
+      return urlModifier(url);
+    }
+
+    return url;
+  };
+
+  this.setURLModifier = function (transform) {
+    urlModifier = transform;
+    return this;
+  };
+
+  this.addHandler = function (regex, loader) {
+    handlers.push(regex, loader);
+    return this;
+  };
+
+  this.removeHandler = function (regex) {
+    var index = handlers.indexOf(regex);
+
+    if (index !== -1) {
+      handlers.splice(index, 2);
+    }
+
+    return this;
+  };
+
+  this.getHandler = function (file) {
+    for (var i = 0, l = handlers.length; i < l; i += 2) {
+      var regex = handlers[i];
+      var loader = handlers[i + 1];
+      if (regex.global) regex.lastIndex = 0; // see #17920
+
+      if (regex.test(file)) {
+        return loader;
+      }
+    }
+
+    return null;
+  };
+};
+
+var DefaultLoadingManager = new LoadingManager();
+
+
+/***/ }),
+
 /***/ "./node_modules/three/src/materials/Material.js":
 /*!******************************************************!*\
   !*** ./node_modules/three/src/materials/Material.js ***!
@@ -14988,6 +15394,325 @@ function checkBufferGeometryIntersection(object, material, raycaster, ray, posit
 
 /***/ }),
 
+/***/ "./node_modules/three/src/textures/Texture.js":
+/*!****************************************************!*\
+  !*** ./node_modules/three/src/textures/Texture.js ***!
+  \****************************************************/
+/*! exports provided: Texture */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Texture", function() { return Texture; });
+/* harmony import */ var _core_EventDispatcher_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/EventDispatcher.js */ "./node_modules/three/src/core/EventDispatcher.js");
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../constants.js */ "./node_modules/three/src/constants.js");
+/* harmony import */ var _math_MathUtils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../math/MathUtils.js */ "./node_modules/three/src/math/MathUtils.js");
+/* harmony import */ var _math_Vector2_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../math/Vector2.js */ "./node_modules/three/src/math/Vector2.js");
+/* harmony import */ var _math_Matrix3_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../math/Matrix3.js */ "./node_modules/three/src/math/Matrix3.js");
+/* harmony import */ var _extras_ImageUtils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../extras/ImageUtils.js */ "./node_modules/three/src/extras/ImageUtils.js");
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+
+
+
+
+
+
+var textureId = 0;
+
+var Texture = /*#__PURE__*/function (_EventDispatcher) {
+  _inherits(Texture, _EventDispatcher);
+
+  var _super = _createSuper(Texture);
+
+  function Texture() {
+    var _this;
+
+    var image = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Texture.DEFAULT_IMAGE;
+    var mapping = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Texture.DEFAULT_MAPPING;
+    var wrapS = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _constants_js__WEBPACK_IMPORTED_MODULE_1__["ClampToEdgeWrapping"];
+    var wrapT = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _constants_js__WEBPACK_IMPORTED_MODULE_1__["ClampToEdgeWrapping"];
+    var magFilter = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : _constants_js__WEBPACK_IMPORTED_MODULE_1__["LinearFilter"];
+    var minFilter = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : _constants_js__WEBPACK_IMPORTED_MODULE_1__["LinearMipmapLinearFilter"];
+    var format = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : _constants_js__WEBPACK_IMPORTED_MODULE_1__["RGBAFormat"];
+    var type = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : _constants_js__WEBPACK_IMPORTED_MODULE_1__["UnsignedByteType"];
+    var anisotropy = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 1;
+    var encoding = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : _constants_js__WEBPACK_IMPORTED_MODULE_1__["LinearEncoding"];
+
+    _classCallCheck(this, Texture);
+
+    _this = _super.call(this);
+    Object.defineProperty(_assertThisInitialized(_this), 'id', {
+      value: textureId++
+    });
+    _this.uuid = _math_MathUtils_js__WEBPACK_IMPORTED_MODULE_2__["generateUUID"]();
+    _this.name = '';
+    _this.image = image;
+    _this.mipmaps = [];
+    _this.mapping = mapping;
+    _this.wrapS = wrapS;
+    _this.wrapT = wrapT;
+    _this.magFilter = magFilter;
+    _this.minFilter = minFilter;
+    _this.anisotropy = anisotropy;
+    _this.format = format;
+    _this.internalFormat = null;
+    _this.type = type;
+    _this.offset = new _math_Vector2_js__WEBPACK_IMPORTED_MODULE_3__["Vector2"](0, 0);
+    _this.repeat = new _math_Vector2_js__WEBPACK_IMPORTED_MODULE_3__["Vector2"](1, 1);
+    _this.center = new _math_Vector2_js__WEBPACK_IMPORTED_MODULE_3__["Vector2"](0, 0);
+    _this.rotation = 0;
+    _this.matrixAutoUpdate = true;
+    _this.matrix = new _math_Matrix3_js__WEBPACK_IMPORTED_MODULE_4__["Matrix3"]();
+    _this.generateMipmaps = true;
+    _this.premultiplyAlpha = false;
+    _this.flipY = true;
+    _this.unpackAlignment = 4; // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
+    // Values of encoding !== THREE.LinearEncoding only supported on map, envMap and emissiveMap.
+    //
+    // Also changing the encoding after already used by a Material will not automatically make the Material
+    // update. You need to explicitly call Material.needsUpdate to trigger it to recompile.
+
+    _this.encoding = encoding;
+    _this.version = 0;
+    _this.onUpdate = null;
+    return _this;
+  }
+
+  _createClass(Texture, [{
+    key: "updateMatrix",
+    value: function updateMatrix() {
+      this.matrix.setUvTransform(this.offset.x, this.offset.y, this.repeat.x, this.repeat.y, this.rotation, this.center.x, this.center.y);
+    }
+  }, {
+    key: "clone",
+    value: function clone() {
+      return new this.constructor().copy(this);
+    }
+  }, {
+    key: "copy",
+    value: function copy(source) {
+      this.name = source.name;
+      this.image = source.image;
+      this.mipmaps = source.mipmaps.slice(0);
+      this.mapping = source.mapping;
+      this.wrapS = source.wrapS;
+      this.wrapT = source.wrapT;
+      this.magFilter = source.magFilter;
+      this.minFilter = source.minFilter;
+      this.anisotropy = source.anisotropy;
+      this.format = source.format;
+      this.internalFormat = source.internalFormat;
+      this.type = source.type;
+      this.offset.copy(source.offset);
+      this.repeat.copy(source.repeat);
+      this.center.copy(source.center);
+      this.rotation = source.rotation;
+      this.matrixAutoUpdate = source.matrixAutoUpdate;
+      this.matrix.copy(source.matrix);
+      this.generateMipmaps = source.generateMipmaps;
+      this.premultiplyAlpha = source.premultiplyAlpha;
+      this.flipY = source.flipY;
+      this.unpackAlignment = source.unpackAlignment;
+      this.encoding = source.encoding;
+      return this;
+    }
+  }, {
+    key: "toJSON",
+    value: function toJSON(meta) {
+      var isRootObject = meta === undefined || typeof meta === 'string';
+
+      if (!isRootObject && meta.textures[this.uuid] !== undefined) {
+        return meta.textures[this.uuid];
+      }
+
+      var output = {
+        metadata: {
+          version: 4.5,
+          type: 'Texture',
+          generator: 'Texture.toJSON'
+        },
+        uuid: this.uuid,
+        name: this.name,
+        mapping: this.mapping,
+        repeat: [this.repeat.x, this.repeat.y],
+        offset: [this.offset.x, this.offset.y],
+        center: [this.center.x, this.center.y],
+        rotation: this.rotation,
+        wrap: [this.wrapS, this.wrapT],
+        format: this.format,
+        type: this.type,
+        encoding: this.encoding,
+        minFilter: this.minFilter,
+        magFilter: this.magFilter,
+        anisotropy: this.anisotropy,
+        flipY: this.flipY,
+        premultiplyAlpha: this.premultiplyAlpha,
+        unpackAlignment: this.unpackAlignment
+      };
+
+      if (this.image !== undefined) {
+        // TODO: Move to THREE.Image
+        var image = this.image;
+
+        if (image.uuid === undefined) {
+          image.uuid = _math_MathUtils_js__WEBPACK_IMPORTED_MODULE_2__["generateUUID"](); // UGH
+        }
+
+        if (!isRootObject && meta.images[image.uuid] === undefined) {
+          var url;
+
+          if (Array.isArray(image)) {
+            // process array of images e.g. CubeTexture
+            url = [];
+
+            for (var i = 0, l = image.length; i < l; i++) {
+              // check cube texture with data textures
+              if (image[i].isDataTexture) {
+                url.push(serializeImage(image[i].image));
+              } else {
+                url.push(serializeImage(image[i]));
+              }
+            }
+          } else {
+            // process single image
+            url = serializeImage(image);
+          }
+
+          meta.images[image.uuid] = {
+            uuid: image.uuid,
+            url: url
+          };
+        }
+
+        output.image = image.uuid;
+      }
+
+      if (!isRootObject) {
+        meta.textures[this.uuid] = output;
+      }
+
+      return output;
+    }
+  }, {
+    key: "dispose",
+    value: function dispose() {
+      this.dispatchEvent({
+        type: 'dispose'
+      });
+    }
+  }, {
+    key: "transformUv",
+    value: function transformUv(uv) {
+      if (this.mapping !== _constants_js__WEBPACK_IMPORTED_MODULE_1__["UVMapping"]) return uv;
+      uv.applyMatrix3(this.matrix);
+
+      if (uv.x < 0 || uv.x > 1) {
+        switch (this.wrapS) {
+          case _constants_js__WEBPACK_IMPORTED_MODULE_1__["RepeatWrapping"]:
+            uv.x = uv.x - Math.floor(uv.x);
+            break;
+
+          case _constants_js__WEBPACK_IMPORTED_MODULE_1__["ClampToEdgeWrapping"]:
+            uv.x = uv.x < 0 ? 0 : 1;
+            break;
+
+          case _constants_js__WEBPACK_IMPORTED_MODULE_1__["MirroredRepeatWrapping"]:
+            if (Math.abs(Math.floor(uv.x) % 2) === 1) {
+              uv.x = Math.ceil(uv.x) - uv.x;
+            } else {
+              uv.x = uv.x - Math.floor(uv.x);
+            }
+
+            break;
+        }
+      }
+
+      if (uv.y < 0 || uv.y > 1) {
+        switch (this.wrapT) {
+          case _constants_js__WEBPACK_IMPORTED_MODULE_1__["RepeatWrapping"]:
+            uv.y = uv.y - Math.floor(uv.y);
+            break;
+
+          case _constants_js__WEBPACK_IMPORTED_MODULE_1__["ClampToEdgeWrapping"]:
+            uv.y = uv.y < 0 ? 0 : 1;
+            break;
+
+          case _constants_js__WEBPACK_IMPORTED_MODULE_1__["MirroredRepeatWrapping"]:
+            if (Math.abs(Math.floor(uv.y) % 2) === 1) {
+              uv.y = Math.ceil(uv.y) - uv.y;
+            } else {
+              uv.y = uv.y - Math.floor(uv.y);
+            }
+
+            break;
+        }
+      }
+
+      if (this.flipY) {
+        uv.y = 1 - uv.y;
+      }
+
+      return uv;
+    }
+  }, {
+    key: "needsUpdate",
+    set: function set(value) {
+      if (value === true) this.version++;
+    }
+  }]);
+
+  return Texture;
+}(_core_EventDispatcher_js__WEBPACK_IMPORTED_MODULE_0__["EventDispatcher"]);
+
+Texture.DEFAULT_IMAGE = undefined;
+Texture.DEFAULT_MAPPING = _constants_js__WEBPACK_IMPORTED_MODULE_1__["UVMapping"];
+Texture.prototype.isTexture = true;
+
+function serializeImage(image) {
+  if (typeof HTMLImageElement !== 'undefined' && image instanceof HTMLImageElement || typeof HTMLCanvasElement !== 'undefined' && image instanceof HTMLCanvasElement || typeof ImageBitmap !== 'undefined' && image instanceof ImageBitmap) {
+    // default images
+    return _extras_ImageUtils_js__WEBPACK_IMPORTED_MODULE_5__["ImageUtils"].getDataURL(image);
+  } else {
+    if (image.data) {
+      // images of DataTexture
+      return {
+        data: Array.prototype.slice.call(image.data),
+        width: image.width,
+        height: image.height,
+        type: image.data.constructor.name
+      };
+    } else {
+      console.warn('THREE.Texture: Unable to serialize Texture.');
+      return {};
+    }
+  }
+}
+
+
+
+/***/ }),
+
 /***/ "./node_modules/three/src/utils.js":
 /*!*****************************************!*\
   !*** ./node_modules/three/src/utils.js ***!
@@ -15218,6 +15943,94 @@ function init() {
 
 /***/ }),
 
+/***/ "./src/loaders/CancellableTextureLoader.js":
+/*!*************************************************!*\
+  !*** ./src/loaders/CancellableTextureLoader.js ***!
+  \*************************************************/
+/*! exports provided: CancellableTextureLoader */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CancellableTextureLoader", function() { return CancellableTextureLoader; });
+/* harmony import */ var three_src_constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/src/constants.js */ "./node_modules/three/src/constants.js");
+/* harmony import */ var three_src_loaders_ImageLoader_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/src/loaders/ImageLoader.js */ "./node_modules/three/src/loaders/ImageLoader.js");
+/* harmony import */ var three_src_textures_Texture_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/src/textures/Texture.js */ "./node_modules/three/src/textures/Texture.js");
+/* harmony import */ var three_src_loaders_Loader_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three/src/loaders/Loader.js */ "./node_modules/three/src/loaders/Loader.js");
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+
+
+
+
+
+var CancellableTextureLoader = /*#__PURE__*/function (_Loader) {
+  _inherits(CancellableTextureLoader, _Loader);
+
+  var _super = _createSuper(CancellableTextureLoader);
+
+  function CancellableTextureLoader(manager) {
+    _classCallCheck(this, CancellableTextureLoader);
+
+    return _super.call(this, manager);
+  }
+
+  _createClass(CancellableTextureLoader, [{
+    key: "load",
+    value: function load(url, onLoad, onProgress, onError) {
+      var texture = new three_src_textures_Texture_js__WEBPACK_IMPORTED_MODULE_2__["Texture"]();
+      var loader = new three_src_loaders_ImageLoader_js__WEBPACK_IMPORTED_MODULE_1__["ImageLoader"](this.manager);
+      loader.setCrossOrigin(this.crossOrigin);
+      loader.setPath(this.path);
+      var image = loader.load(url, function (image) {
+        texture.image = image; // JPEGs can't have an alpha channel, so memory can be saved by storing them as RGB.
+
+        var isJPEG = url.search(/\.jpe?g($|\?)/i) > 0 || url.search(/^data\:image\/jpeg/) === 0;
+        texture.format = isJPEG ? three_src_constants_js__WEBPACK_IMPORTED_MODULE_0__["RGBFormat"] : three_src_constants_js__WEBPACK_IMPORTED_MODULE_0__["RGBAFormat"];
+        texture.needsUpdate = true;
+
+        if (onLoad !== undefined) {
+          onLoad(texture);
+        }
+      }, onProgress, onError);
+
+      texture.abort = function () {
+        if (image && typeof image.hasAttribute === 'function') {
+          image.src = '';
+        }
+      };
+
+      return texture;
+    }
+  }]);
+
+  return CancellableTextureLoader;
+}(three_src_loaders_Loader_js__WEBPACK_IMPORTED_MODULE_3__["Loader"]);
+
+
+
+/***/ }),
+
 /***/ "./src/planet/BingElevationLayer.js":
 /*!******************************************!*\
   !*** ./src/planet/BingElevationLayer.js ***!
@@ -15361,10 +16174,12 @@ var Planet = /*#__PURE__*/function (_Object3D) {
 
     var self = _assertThisInitialized(_this);
 
+    self.radius = radius;
+    self.center = center;
     self.elevationLayer;
     self.mapLayers = [];
     var elevationLayer = new _BingElevationLayer_js__WEBPACK_IMPORTED_MODULE_2__["BingElevationLayer"]("AteBKVs9dTvvEMIEus-KRwyTybV76si7jcncQK5TG02wgMLRG82Fb6ZO2qSVNNvW");
-    var wmsLayer = new _WMSLayer_js__WEBPACK_IMPORTED_MODULE_3__["WMSLayer"]("https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv", "gebco_latest_2");
+    var wmsLayer = new _WMSLayer_js__WEBPACK_IMPORTED_MODULE_3__["WMSLayer"]("https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv", "gebco_latest_2"); //var wmsLayer = new WMSLayer("https://ows.terrestris.de/osm/service", "OSM-WMS")
 
     _this.add(new _PlanetTile_js__WEBPACK_IMPORTED_MODULE_1__["PlanetTile"](new three__WEBPACK_IMPORTED_MODULE_0__["Box2"](new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](-Math.PI, -Math.PI * 0.5), new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, Math.PI * 0.5)), elevationLayer, wmsLayer, center, radius, 0));
 
@@ -15374,7 +16189,7 @@ var Planet = /*#__PURE__*/function (_Object3D) {
       // var count = 0;
       self.children.forEach(function (tile) {
         var frustum = new three__WEBPACK_IMPORTED_MODULE_0__["Frustum"]();
-        frustum.setFromMatrix(new three__WEBPACK_IMPORTED_MODULE_0__["Matrix4"]().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+        frustum.setFromProjectionMatrix(new three__WEBPACK_IMPORTED_MODULE_0__["Matrix4"]().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
         tile.update(camera, frustum);
         /* tile.traverse(function (element) {
             if (element != self && element.material) {
@@ -15411,10 +16226,10 @@ __webpack_require__.r(__webpack_exports__);
 var PlanetShader = {
   vertexShader:
   /* glsl */
-  "\n\t#define HalfPI 1.5707963267948966192313216916398\n\t#define PI 3.1415926535897932384626433832795\n\t#define LON_MULTIPLIER 0.15915494309189533576888376337251\n\t#define LAT_MULTIPLIER 0.63661977236758134307553505349006\n\n\tuniform sampler2D elevation;\n\tuniform float radius;\n\tuniform vec3 planetPosition;\n\tuniform vec2 lowerLeft;\n\tuniform vec2 upperRight;\n\t\n\tvarying vec2 texUV;\n\n\tvoid main() {\n\t\tvec3 vPosition = position;\n        float elevation = texture2D(elevation, vPosition.xy).r;\n\t\tfloat lon = vPosition.x * (upperRight.x - lowerLeft.x) + lowerLeft.x;\n\t\tfloat lat = vPosition.y * (upperRight.y - lowerLeft.y) + lowerLeft.y;\n\n\t\tfloat width = upperRight.x - lowerLeft.x;\n\t\tfloat height = upperRight.y - lowerLeft.y;\n\n\t\ttexUV = vec2((lon - lowerLeft.x) / width, (lat - lowerLeft.y) /height );\n\t\tvPosition = vec3(-(cos(lat) * cos(lon)), sin(lat), cos(lat) * sin(lon));\n\t\t\n\t\tvPosition *= elevation+radius;\n\t\t\n\t    gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);\n\t}",
+  "\n\t#define HalfPI 1.5707963267948966192313216916398\n\t#define PI 3.1415926535897932384626433832795\n\t#define LON_MULTIPLIER 0.15915494309189533576888376337251\n\t#define LAT_MULTIPLIER 0.63661977236758134307553505349006\n\n\tuniform sampler2D elevation;\n\tuniform float radius;\n\tuniform vec3 planetPosition;\n\tuniform vec2 lowerLeft;\n\tuniform vec2 upperRight;\n\tuniform vec2 uvLowerLeft;\n\tuniform vec2 uvUpperRight;\n\t\n\tvarying vec2 texUV;\n\n\tvoid main() {\n\t\tvec3 vPosition = position;\n        float elevation = texture2D(elevation, vPosition.xy).r;\n\t\tfloat lon = vPosition.x * (upperRight.x - lowerLeft.x) + lowerLeft.x;\n\t\tfloat lat = vPosition.y * (upperRight.y - lowerLeft.y) + lowerLeft.y;\n\n\t\tfloat width = upperRight.x - lowerLeft.x;\n\t\tfloat height = upperRight.y - lowerLeft.y;\n\n\t\ttexUV = vec2(((lon - lowerLeft.x) / width)*(uvUpperRight.x-uvLowerLeft.x)+uvLowerLeft.x, ((lat - lowerLeft.y) /height)*(uvUpperRight.y-uvLowerLeft.y)+uvLowerLeft.y );\n\t\tvPosition = vec3(-(cos(lat) * cos(lon)), sin(lat), cos(lat) * sin(lon));\n\t\t\n\t\tvPosition *= elevation+radius;\n\t\t\n\t    gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);\n\t}",
   fragmentShader:
   /* glsl */
-  "\n\n\tvarying vec2 texUV;\n\tuniform sampler2D imagery;\n\t\n\tvoid main() {\n\t\tvec3 color = texture2D(imagery, texUV.xy).xyz;\n\t\tgl_FragColor = vec4(color, 1.0);\n\t}"
+  "\n\n\tvarying vec2 texUV;\n\tuniform vec2 uvLowerLeft;\n\tuniform vec2 uvUpperRight;\n\tuniform sampler2D imagery;\n\t\n\tvoid main() {\n\t\tvec3 color = texture2D(imagery, texUV.xy).xyz;\n\t\tgl_FragColor = vec4(color, 1.0);\n\t}"
 };
 
 
@@ -15525,7 +16340,7 @@ var PlanetTile = /*#__PURE__*/function (_Mesh) {
 
   var _super = _createSuper(PlanetTile);
 
-  function PlanetTile(bounds, elevationService, wmsService, planetCenter, radius, level, callback) {
+  function PlanetTile(bounds, elevationService, wmsService, planetCenter, radius, level, callback, texture, uvLowerLeft, uvUpperRight) {
     var _this;
 
     _classCallCheck(this, PlanetTile);
@@ -15561,88 +16376,140 @@ var PlanetTile = /*#__PURE__*/function (_Mesh) {
     self.material.side = three__WEBPACK_IMPORTED_MODULE_0__["FrontSide"];
     self.material.visible = false;
     self.material.wireframe = false;
-    wmsService.getMap(bounds, 1024, 1024).then(function (texture) {
-      texture.wrapS = three__WEBPACK_IMPORTED_MODULE_0__["ClampToEdgeWrapping"];
-      texture.wrapT = three__WEBPACK_IMPORTED_MODULE_0__["ClampToEdgeWrapping"];
+
+    if (!!texture) {
       self.material.uniforms.imagery = {
         type: "uniform",
         value: texture
+      };
+      self.material.uniforms.uvLowerLeft = {
+        type: "v2",
+        value: uvLowerLeft
+      };
+      self.material.uniforms.uvUpperRight = {
+        type: "v2",
+        value: uvUpperRight
       };
 
       if (!!callback) {
         callback();
       } else {
+        self.refining = false;
         self.material.visible = true;
       }
-    });
-    /*elevationService.getElevation(bounds).then(function (elevationArray) {
-        self.material.uniforms.elevation = { type: "uniform", value: new THREE.DataTexture(Float32Array.from(elevationArray), 32, 32, THREE.RedFormat, THREE.FloatType) };
-        self.elevationArray = elevationArray;
-    });*/
+    } else {
+      self.refining = true;
+      self.loadLayers(function () {
+        self.refining = false;
+        self.material.visible = true;
+        if (!!callback) callback();
+      });
+    }
 
     return _this;
   }
-  /**
-   * Update the tree relative to the camera and available elevation data.
-   * @param {*} camera 
-   */
-
 
   _createClass(PlanetTile, [{
+    key: "loadLayers",
+    value: function loadLayers(callback) {
+      var self = this;
+      self.mapRequest = self.wmsService.getMap(self.bounds, function (texture) {
+        texture.wrapS = three__WEBPACK_IMPORTED_MODULE_0__["ClampToEdgeWrapping"];
+        texture.wrapT = three__WEBPACK_IMPORTED_MODULE_0__["ClampToEdgeWrapping"];
+        self.material.uniforms.imagery = {
+          type: "uniform",
+          value: texture
+        };
+        self.material.uniforms.uvLowerLeft = {
+          type: "v2",
+          value: new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](0, 0)
+        };
+        self.material.uniforms.uvUpperRight = {
+          type: "v2",
+          value: new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](1, 1)
+        };
+
+        if (!!callback) {
+          callback();
+        } else {
+          self.material.visible = true;
+        }
+      }, 1024, 1024);
+      /*elevationService.getElevation(bounds).then(function (elevationArray) {
+          self.material.uniforms.elevation = { type: "uniform", value: new THREE.DataTexture(Float32Array.from(elevationArray), 32, 32, THREE.RedFormat, THREE.FloatType) };
+          self.elevationArray = elevationArray;
+      });*/
+    }
+    /**
+     * Update the tree relative to the camera and available elevation data.
+     * @param {*} camera 
+     */
+
+  }, {
     key: "update",
     value: function update(camera, frustum) {
       var self = this;
+      var metric = this.calculateUpdateMetric(camera, frustum);
 
-      if (this.refining) {
+      if (metric == -1) {
+        this.material.visible = true;
+        this.disposeChildren(self);
         return;
       }
 
-      var metric = this.calculateUpdateMetric(camera, frustum);
-
-      if (metric < this.level + 1) {
-        this.material.visible = true;
-        this.disposeChildren(self);
-      } else if (self.children.length > 0) {
-        this.children.forEach(function (child) {
-          child.update(camera, frustum);
-        });
+      if (this.refining || !this.material.uniforms.uvLowerLeft) {
         return;
-      } else {
-        self.refining = true;
-        self.childrenReady = 0;
-        self.disposed = false;
+      }
 
-        var disposeCallBack = function disposeCallBack() {
-          self.disposed = true;
-        };
+      if (metric < this.level) {//should never happen
+      } else if (metric < this.level + 1 || this.level >= MAX_LEVEL) {
+        // if texture is texture from previous layer, load new texture, invalidate children
+        if (self.material.uniforms.uvLowerLeft.value.x != 0 || self.material.uniforms.uvLowerLeft.value.y != 0 || self.material.uniforms.uvUpperRight.value.x != 1 || self.material.uniforms.uvUpperRight.value.y != 1) {
+          self.refining = true;
+          self.childrenReady = 0;
 
-        self.material.addEventListener('dispose', disposeCallBack);
+          var disposeCallBack = function disposeCallBack() {
+            self.mapRequest.abort();
+          };
 
-        var callback = function callback() {
-          self.childrenReady++;
+          self.material.addEventListener('dispose', disposeCallBack);
 
-          if (self.disposed) {
-            self.disposeChildren(self);
-          }
-
-          if (self.childrenReady == 4) {
-            if (!self.disposed) {
-              self.material.visible = false;
-              self.children.forEach(function (child) {
-                child.material.visible = true;
-              });
-            }
-
+          var callback = function callback() {
             self.refining = false;
-          }
-        };
+            self.material.uniforms.uvLowerLeft.value.set(0, 0);
+            self.material.uniforms.uvUpperRight.value.set(1, 1);
+            self.material.visible = true;
+            self.disposeChildren(self);
+          };
 
-        if (this.children.length == 0 && this.level < MAX_LEVEL) {
-          var boundsCenter = this.bounds.getCenter();
-          this.add(new PlanetTile(new three__WEBPACK_IMPORTED_MODULE_0__["Box2"](this.bounds.min, boundsCenter), this.elevationService, this.wmsService, this.planetCenter, this.radius, this.level + 1, callback));
-          this.add(new PlanetTile(new three__WEBPACK_IMPORTED_MODULE_0__["Box2"](new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](boundsCenter.x, this.bounds.min.y), new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.bounds.max.x, boundsCenter.y)), this.elevationService, this.wmsService, this.planetCenter, this.radius, this.level + 1, callback));
-          this.add(new PlanetTile(new three__WEBPACK_IMPORTED_MODULE_0__["Box2"](new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.bounds.min.x, boundsCenter.y), new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](boundsCenter.x, this.bounds.max.y)), this.elevationService, this.wmsService, this.planetCenter, this.radius, this.level + 1, callback));
-          this.add(new PlanetTile(new three__WEBPACK_IMPORTED_MODULE_0__["Box2"](boundsCenter, this.bounds.max), this.elevationService, this.wmsService, this.planetCenter, this.radius, this.level + 1, callback));
+          self.loadLayers(callback);
+        } else {
+          self.material.visible = true;
+          self.disposeChildren(self);
+        }
+      } else {
+        // if has children, recurse
+        // else generate Children
+        if (self.children.length > 0) {
+          this.children.forEach(function (child) {
+            child.update(camera, frustum);
+          });
+        } else {
+          if (this.level < MAX_LEVEL) {
+            var boundsCenter = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"]();
+            this.bounds.getCenter(boundsCenter);
+            var minUVX = this.material.uniforms.uvLowerLeft.value.x;
+            var minUVY = this.material.uniforms.uvLowerLeft.value.y;
+            var maxUVX = this.material.uniforms.uvUpperRight.value.x;
+            var maxUVY = this.material.uniforms.uvUpperRight.value.y;
+            var halfUVWidth = (maxUVX - minUVX) * 0.5;
+            var halfUVHeight = (maxUVY - minUVY) * 0.5;
+            this.add(new PlanetTile(new three__WEBPACK_IMPORTED_MODULE_0__["Box2"](this.bounds.min, boundsCenter), this.elevationService, this.wmsService, this.planetCenter, this.radius, this.level + 1, null, this.material.uniforms.imagery.value, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](minUVX, minUVY), new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](minUVX + halfUVWidth, minUVY + halfUVHeight)));
+            this.add(new PlanetTile(new three__WEBPACK_IMPORTED_MODULE_0__["Box2"](new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](boundsCenter.x, this.bounds.min.y), new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.bounds.max.x, boundsCenter.y)), this.elevationService, this.wmsService, this.planetCenter, this.radius, this.level + 1, null, this.material.uniforms.imagery.value, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](minUVX + halfUVWidth, minUVY), new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](maxUVX, minUVY + halfUVHeight)));
+            this.add(new PlanetTile(new three__WEBPACK_IMPORTED_MODULE_0__["Box2"](new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](this.bounds.min.x, boundsCenter.y), new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](boundsCenter.x, this.bounds.max.y)), this.elevationService, this.wmsService, this.planetCenter, this.radius, this.level + 1, null, this.material.uniforms.imagery.value, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](minUVX, minUVY + halfUVHeight), new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](minUVX + halfUVWidth, maxUVY)));
+            this.add(new PlanetTile(new three__WEBPACK_IMPORTED_MODULE_0__["Box2"](boundsCenter, this.bounds.max), this.elevationService, this.wmsService, this.planetCenter, this.radius, this.level + 1, null, this.material.uniforms.imagery.value, new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](minUVX + halfUVWidth, minUVY + halfUVHeight), new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"](maxUVX, maxUVY)));
+            self.material.visible = false;
+          }
         }
       }
     }
@@ -15651,6 +16518,10 @@ var PlanetTile = /*#__PURE__*/function (_Mesh) {
     value: function disposeChildren(self) {
       if (self.children.length != 0) {
         self.traverse(function (element) {
+          if (element != self && !!element.mapRequest) {
+            element.mapRequest.abort();
+          }
+
           if (element != self && element.material) {
             if (element.material.length) {
               for (var i = 0; i < element.material.length; ++i) {
@@ -15702,23 +16573,25 @@ var PlanetTile = /*#__PURE__*/function (_Mesh) {
       var nearest = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-(Math.cos(lat) * Math.cos(lon)), Math.sin(lat), Math.cos(lat) * Math.sin(lon));
       var nearestMSE = nearest.clone().multiplyScalar(this.radius);
       var nearestSurface = nearest.clone().multiplyScalar(surfaceElevation);
-      var center = this.bounds.getCenter();
+      var center = new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"]();
+      this.bounds.getCenter(center);
       var c = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-(Math.cos(center.y) * Math.cos(center.x)), Math.sin(center.y), Math.cos(center.y) * Math.sin(center.x)).multiplyScalar(surfaceElevationCenter);
       var m = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-(Math.cos(this.bounds.max.y) * Math.cos(this.bounds.max.x)), Math.sin(this.bounds.max.y), Math.cos(this.bounds.max.y) * Math.sin(this.bounds.max.x)).multiplyScalar(surfaceElevationMax);
       var boundingSphere = new three__WEBPACK_IMPORTED_MODULE_0__["Sphere"](c.clone().add(this.planetCenter), c.distanceTo(m) * 1.1);
 
       if (!frustum.intersectsSphere(boundingSphere)) {
-        return 0;
+        return -1;
       }
 
       var dot = nearestMSE.sub(this.planetCenter).normalize().dot(pNormalized);
 
       if (dot < 0) {
-        return 0;
+        return -1;
       }
 
-      var distance = Math.sqrt(p.distanceTo(nearestSurface));
-      return 4000 / Math.max(distance, 0.0001);
+      var distance = Math.sqrt(p.distanceTo(nearestSurface)); //console.log(this.level);
+
+      return Math.min(20.1, 4000 / Math.max(distance, 0.0001));
     }
   }]);
 
@@ -15740,11 +16613,13 @@ var PlanetTile = /*#__PURE__*/function (_Mesh) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WMSLayer", function() { return WMSLayer; });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _loaders_CancellableTextureLoader_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../loaders/CancellableTextureLoader.js */ "./src/loaders/CancellableTextureLoader.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 
 
 /**
@@ -15768,20 +16643,17 @@ var WMSLayer = /*#__PURE__*/function () {
 
   _createClass(WMSLayer, [{
     key: "getMap",
-    value: function getMap(bounds) {
-      var _this = this;
-
-      var width = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 128;
-      var height = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 128;
-      return new Promise(function (resolve, reject) {
-        var minY = Math.min(90, Math.max(-90, bounds.min.y * toDegrees));
-        var maxY = Math.min(90, Math.max(-90, bounds.max.y * toDegrees));
-        var minX = Math.min(179.99999999, Math.max(-180, bounds.min.x * toDegrees));
-        var maxX = Math.min(179.99999999, Math.max(-180, bounds.max.x * toDegrees));
-        var request = _this.url + "?request=getmap&service=wms&format=image/jpeg&BBOX=" + minX + "," + minY + "," + maxX + "," + maxY + "&srs=" + _this.epsg + "&layers=" + _this.layers + "&width=" + width + "&height=" + height + "&version=" + _this.version;
-        new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]().load(request, function (texture) {
-          resolve(texture);
-        });
+    value: function getMap(bounds, callback) {
+      var width = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 128;
+      var height = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 128;
+      var minY = Math.min(90, Math.max(-90, bounds.min.y * toDegrees));
+      var maxY = Math.min(90, Math.max(-90, bounds.max.y * toDegrees));
+      var minX = Math.min(179.99999999, Math.max(-180, bounds.min.x * toDegrees));
+      var maxX = Math.min(179.99999999, Math.max(-180, bounds.max.x * toDegrees));
+      var request = this.url + "?request=getmap&service=wms&format=image/jpeg&BBOX=" + minX + "," + minY + "," + maxX + "," + maxY + "&srs=" + this.epsg + "&layers=" + this.layers + "&width=" + width + "&height=" + height + "&version=" + this.version + "&styles=default";
+      var textureLoader = new _loaders_CancellableTextureLoader_js__WEBPACK_IMPORTED_MODULE_1__["CancellableTextureLoader"]();
+      return textureLoader.load(request, function (texture) {
+        callback(texture);
       });
     }
   }]);
